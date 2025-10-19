@@ -18,3 +18,4 @@ services:
            REFRESH_RATE: 10
            DEBUG: true
            HA_PREFIX: "homeassistant"
+           HA_DEVICE_NAME: "nbe-blackstar"

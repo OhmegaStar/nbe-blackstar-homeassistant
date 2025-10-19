@@ -16,6 +16,7 @@ echo "\"mqtt_client_name\": \"${MQTT_CLIENT_NAME}\"," >> /app/config.json
 echo "\"debug\": ${DEBUG}," >> /app/config.json
 echo "\"refresh_rate\": ${REFRESH_RATE}," >> /app/config.json
 echo "\"ha_prefix\": \"${HA_PREFIX}\"" >> /app/config.json
+echo "\"ha_device_name\": \"${HA_DEVICE_NAME}\"" >> /app/config.json
 echo "}" >> /app/config.json
 
 echo "Config done."

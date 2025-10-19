@@ -10,5 +10,6 @@
 "mqtt_client_name": "pellet-burner",
 "debug": false,
 "refresh_rate": 10,
-"ha_prefix": "homeassistant"
+"ha_prefix": "homeassistant",
+"ha_device_name": "nbe-blackstar"
 }

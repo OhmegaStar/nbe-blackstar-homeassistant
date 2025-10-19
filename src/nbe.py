@@ -42,7 +42,14 @@ from protocol import Proxy
 settings.init()
 lock = 0
 
-device = ha_classes.Device("8caab44d999f","nbe-blackstar","NBE BlackStar+ IOT Controller v1.0","NBE Blackstar+","2022 (c) e1z0")
+#make device name and ident unique by adding the serialnumber of the device from settings, and using ha_device_name from settings as name if present
+device = ha_classes.Device(
+    "8caab44d999f" + "-" + settings.nbe_serial,
+    settings.ha_device_name if settings.ha_device_name else "nbe-blackstar",
+    "NBE BlackStar+ IOT Controller v1.0",
+    "NBE Blackstar+",
+    "2022 (c) e1z0"
+)
 DataEntries = []
 
 # read nbe schema file with declared device resources, group by specific device type and populate them in home assistant mqtt prefix topics
