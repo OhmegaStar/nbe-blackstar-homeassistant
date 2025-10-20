@@ -37,6 +37,7 @@ import settings
 import random
 import csv
 import os
+import traceback
 from protocol import Proxy
 
 settings.init()
@@ -44,8 +45,8 @@ lock = 0
 
 #make device name and ident unique by adding the serialnumber of the device from settings, and using ha_device_name from settings as name if present
 device = ha_classes.Device(
-    "8caab44d999f" + "-" + settings.nbe_serial,
-    settings.ha_device_name if settings.ha_device_name else "nbe-blackstar",
+    "8caab44d999f" + "-" + settings.config['nbe_serial'],
+    settings.config['ha_device_name'] if settings.config['ha_device_name'] else "nbe-blackstar",
     "NBE BlackStar+ IOT Controller v1.0",
     "NBE Blackstar+",
     "2022 (c) e1z0"
@@ -96,8 +97,11 @@ def nbe_query():
                for item in response:
                   val = item.split("=",1)
                   items[val[0]] = val[1]
-    except:
-        print("Unable to query nbe for this time...")
+    except Exception as e:
+      print("Unable to query NBE:")
+      print(f"Error type: {type(e).__name__}")
+      print(f"Error message: {e}")
+      traceback.print_exc()
     return items
 
 def nbe_update(command,value):
@@ -109,8 +113,11 @@ def nbe_update(command,value):
               print("NBE SET DEBUG RETURN: " + str(res))
            if str(res) == "('OK',)":
               return True
-    except:
-        print("Unable to send update to the nbe controller!")
+    except Exception as e:
+      print("Unable to send update to NBE Controller:")
+      print(f"Error type: {type(e).__name__}")
+      print(f"Error message: {e}")
+      traceback.print_exc()
     lock = 0
     return False
 

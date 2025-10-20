@@ -3,3 +3,4 @@ config.json
 src/config.json
 src/__pycache__
 __pycache__
+.vscode/

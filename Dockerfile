@@ -1,5 +1,5 @@
 FROM alpine:3.10
-MAINTAINER e1z0
+LABEL org.opencontainers.image.authors="e1z0, OhmegaStar"
 
 RUN apk add --no-cache \
     bash \
@@ -9,7 +9,7 @@ RUN apk add --no-cache \
     py3-crypto \
     py3-paho-mqtt
 
-COPY ./docker/docker_init /docker_init
-COPY ./src /app
+COPY /docker/docker_init /docker_init
+COPY /src /app
 
 ENTRYPOINT ["/docker_init"]
