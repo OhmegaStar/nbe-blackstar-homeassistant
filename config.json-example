@@ -8,7 +8,7 @@
 "mqtt_user": "nbe-client",
 "mqtt_pass": "nbe-pass",
 "mqtt_client_name": "pellet-burner",
-"debug": false,
+"log_level": "INFO(default)|DEBUG|WARNING",
 "refresh_rate": 10,
 "ha_prefix": "homeassistant",
 "ha_device_name": "nbe-blackstar"

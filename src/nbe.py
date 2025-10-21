@@ -39,9 +39,26 @@ import csv
 import os
 import traceback
 from protocol import Proxy
+import logging
 
 settings.init()
 lock = 0
+
+# Create logger
+logger = logging.getLogger("pellet_burner")
+level = settings.config.get("log_level", "INFO").upper()
+logger.setLevel(getattr(logging, level, logging.INFO))
+
+# Create console handler
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.DEBUG)  # You can adjust this independently
+
+# Create formatter and attach to handler
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+console_handler.setFormatter(formatter)
+
+# Attach handler to logger
+logger.addHandler(console_handler)
 
 #make device name and ident unique by adding the serialnumber of the device from settings, and using ha_device_name from settings as name if present
 device = ha_classes.Device(
@@ -79,31 +96,28 @@ def populate_resources(client):
               client.subscribe(item.command_topic,0)
     # cycle for entries and add them to mqtt
     for row in DataEntries:
-        if settings.config["debug"]:
-           print("Publishing: "+row.getHaTopic())
+        logger.debug("Publishing: "+row.getHaTopic())
         client.publish(row.getHaTopic(),row.component.toJSON(),0,True)
 
 def nbe_query():
-    if settings.config["debug"]:
-       print ("Making query to the pellet burner...")
+    logger.info("Making query to the pellet burner...")
     items = {}
     if lock == 1:
-       print("Query collision, lock already set, skipping...")
+       logger.warning("Query collision, lock already set, skipping...")
        return items
     try:
        with Proxy(settings.config["nbe_pass"], settings.config["nbe_port"], settings.config["nbe_ip"], settings.config["nbe_serial"]) as proxy:
             for query in [ "operating_data", "settings/boiler", "consumption_data/counter" ]:
                response = proxy.get(query)
-               if settings.config["debug"]:
-                  print("Query: " + query)
-                  print("Response:\n\n" + str(response))
+               logger.debug("Query: " + query)
+               logger.debug("Response:\n\n" + str(response))
                for item in response:
                   val = item.split("=",1)
                   items[val[0]] = val[1]
     except Exception as e:
-      print("Unable to query NBE:")
-      print(f"Error type: {type(e).__name__}")
-      print(f"Error message: {e}")
+      logger.error("Unable to query NBE:")
+      logger.error(f"Error type: {type(e).__name__}")
+      logger.error(f"Error message: {e}")
       traceback.print_exc()
     return items
 
@@ -112,14 +126,13 @@ def nbe_update(command,value):
     try:
         with Proxy(settings.config["nbe_pass"], settings.config["nbe_port"], settings.config["nbe_ip"], settings.config["nbe_serial"]) as proxy:
            res = proxy.set(command,value)
-           if settings.config["debug"]:
-              print("NBE SET DEBUG RETURN: " + str(res))
+           logger.debug("NBE SET DEBUG RETURN: " + str(res))
            if str(res) == "('OK',)":
               return True
     except Exception as e:
-      print("Unable to send update to NBE Controller:")
-      print(f"Error type: {type(e).__name__}")
-      print(f"Error message: {e}")
+      logger.error("Unable to send update to NBE Controller:")
+      logger.error(f"Error type: {type(e).__name__}")
+      logger.error(f"Error message: {e}")
       traceback.print_exc()
     lock = 0
     return False
@@ -139,21 +152,19 @@ def refresh_statuses(client):
         if row.type == "climate":
            key,val = search_query(raw_data,row.resource)
            if key != "none" and val != "none":
-              if settings.config["debug"]:
-                 print("climate: "+row.component.temperature_state_topic+" with value: "+str(val))
+              logger.debug("climate: "+row.component.temperature_state_topic+" with value: "+str(val))
               client.publish(row.component.temperature_state_topic,val,0,True)
         if row.type == "sensor":
            key,val = search_query(raw_data,row.resource)
            if key != "none" and val != "none":
-              if settings.config["debug"]:
-                 print("sensor: "+row.component.state_topic+" with value: "+str(val))
+              logger.debug("sensor: "+row.component.state_topic+" with value: "+str(val))
               client.publish(row.component.state_topic,val,0,True)
 
 # mqtt callback when connection success
 def on_connect(client, userdata, flags, rc):
     if rc==0:
         client.connected_flag=True
-        print("connected OK")
+        logger.info("connected OK")
         # set availability when connected
         client.publish(device.getUid()+"/bridge/state","online",0,True)
         # a hacky trick to always show auto on thermostats (for now, just for eyes to be happy)
@@ -161,25 +172,22 @@ def on_connect(client, userdata, flags, rc):
         # populate device resources
         populate_resources(client)
     else:
-        print("Bad connection Returned code=",rc)
+        logger.error("Bad connection Returned code=" + str(rc))
         client.bad_connection_flag=True
 
 
 # mqtt callback for subscribed topics
 def on_message(client, userdata, message):
     data = str(message.payload,'utf-8')
-    if settings.config["debug"]:
-       print("got message payload: " + data)
+    logger.debug("got message payload: " + data)
     for row in DataEntries:
         if row.type == "climate" and message.topic == row.getTempCommandTopic():
-           if settings.config["debug"]:
-              print ("Climate command triggered: "+ row.resource + " set data to: "+data)
+           logger.debug("Climate command triggered: "+ row.resource + " set data to: "+data)
            stat = nbe_update(row.resource,data)
            if stat == True:
               client.publish(row.getTempStateTopic(),data,0,True)
         if row.type == "switch" and message.topic == row.getCommandTopic():
-           if settings.config["debug"]:
-              print ("Triggered topic: "+ row.getCommandTopic())
+           logger.debug("Triggered topic: "+ row.getCommandTopic())
            # DO SOME WORK WIT TEH DEV
            # set the status to the requested one
            client.publish(row.getStateTopic(),data,0,True)
@@ -187,14 +195,14 @@ def on_message(client, userdata, message):
 # main function
 def start():
     # connection
-    print("Started up!")
+    logger.info("Started up!")
     paho.Client.connected_flag=False
     paho.Client.bad_connection_flag=False
     client= paho.Client()
     client.username_pw_set(settings.config["mqtt_user"],settings.config["mqtt_pass"])
     client.on_connect=on_connect   #bind connect call back function
     client.on_message=on_message    #attach function to callback for subscriptions on the topics
-    print("Connecting to broker ",settings.config["mqtt_server"])
+    logger.info("Connecting to broker " + settings.config["mqtt_server"])
     client.connect(settings.config["mqtt_server"],settings.config["mqtt_port"])	#establish connection
     client.loop_start() #start network loop
     while not client.connected_flag and not client.bad_connection_flag: #wait in loop
@@ -207,18 +215,17 @@ def start():
         try:
             # refresh device's resources to assigned topics
             refresh_statuses(client)
-            if settings.config["debug"]:
-               print("still running")
+            logger.info("still running")
             time.sleep(settings.config["refresh_rate"])
         except KeyboardInterrupt:
-            print("Received kill signal, stopping the processes...")
+            logger.error("Received kill signal, stopping the processes...")
             # set availability to offline
             client.publish(device.getUid()+"/bridge/state","offline",0,True)
             client.publish(device.getUid()+"/bridge/static_auto_state","off",0,True)
             client.loop_stop()
             client.disconnect()
             client.connected_flag=False
-            print("Ending program")
+            logger.info("Ending program")
             exit()
 
 start()

@@ -16,6 +16,6 @@ services:
            MQTT_PASS: "nbe_mqtt_pass"
            MQTT_CLIENT_NAME: "pellet-burner"
            REFRESH_RATE: 10
-           DEBUG: true
+           LOG_LEVEL: "INFO"
            HA_PREFIX: "homeassistant"
            HA_DEVICE_NAME: "nbe-blackstar"
