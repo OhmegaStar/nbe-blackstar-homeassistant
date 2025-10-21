@@ -92,8 +92,11 @@ def nbe_query():
        return items
     try:
        with Proxy(settings.config["nbe_pass"], settings.config["nbe_port"], settings.config["nbe_ip"], settings.config["nbe_serial"]) as proxy:
-            for query in [ "operating_data", "settings/boiler", "settings/hot_water" ]:
+            for query in [ "operating_data", "settings/boiler", "consumption_data/counter" ]:
                response = proxy.get(query)
+               if settings.config["debug"]:
+                  print("Query: " + query)
+                  print("Response:\n\n" + str(response))
                for item in response:
                   val = item.split("=",1)
                   items[val[0]] = val[1]

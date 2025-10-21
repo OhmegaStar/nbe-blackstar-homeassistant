@@ -1,15 +1,16 @@
 # RESOURCE,METHOD,TYPE,NAME,ICON,STATE-CLASS,DEVICE-CLASS,UNIT-OF-MEASUREMENT
+## --------------------------------operating_data-------------------------------- ##
 #operating_data/time=04/11-22 02:02:26
-operating_data/boiler_temp,get,sensor,Core,none,measurement,temperature,°C
-#operating_data/smoke_temp=999.9
+operating_data/boiler_temp,get,sensor,Boiler,none,measurement,temperature,°C
+operating_data/smoke_temp,get,sensor,Smoke,none,measurement,temperature,°C
 #operating_data/return_temp=999.9
 #operating_data/t4_temp=45.9
 #operating_data/t5_temp=8.1
 #operating_data/t6_temp=26.4
 #operating_data/t7_temp=999.9
 #operating_data/distance=999
-operating_data/photo_level,get,sensor,Photo Sensor,none,measurement,illuminance,lm
-#operating_data/shaft_temp=35.6
+operating_data/photo_level,get,sensor,Photo Sensor,none,measurement,illuminance,lx
+operating_data/shaft_temp,get,sensor,Chimney,none,measurement,temperature,°C
 #operating_data/milli_ampere=430
 operating_data/oxygen,get,sensor,Oxygen Level,mdi:percent,measurement,power_factor,%
 #operating_data/flow1=0
@@ -19,43 +20,41 @@ operating_data/oxygen,get,sensor,Oxygen Level,mdi:percent,measurement,power_fact
 operating_data/power_pct,get,sensor,Burning power,mdi:percent,measurement,power_factor,%
 operating_data/power_kw,get,sensor,Burning power kW,mdi:flash,measurement,power,kW
 #operating_data/oxygen_ref=14.2
-operating_data/boiler_ref,get,sensor,Core target,none,measurement,temperature,°C
-#operating_data/mean_out_temp=9.0
-operating_data/dhw_ref,get,sensor,Boiler target,mdi:water-boiler,measurement,temperature,°C
-operating_data/forward_ref,get,sensor,Floor wanted,mdi:heating-coil,measurement,temperature,°C
+operating_data/boiler_ref,get,sensor,Boiler target,none,measurement,temperature,°C
+operating_data/mean_out_temp,get,sensor,Mean Outside,none,measurement,temperature,°C
+#operating_data/dhw_ref,get,sensor,Boiler target,mdi:water-boiler,measurement,temperature,°C
+operating_data/forward_ref,get,sensor,Flow wanted,mdi:heating-coil,measurement,temperature,°C
 #operating_data/sun2_temp=999.9
-operating_data/sun_dhw_temp,get,sensor,Boiler temperature,mdi:water-boiler,measurement,temperature,°C
+#operating_data/sun_dhw_temp,get,sensor,Boiler temperature,mdi:water-boiler,measurement,temperature,°C
 #operating_data/sun_surplus_temp=999.9
 #operating_data/pressure=0.00
-#operating_data/air_flow=9990
+operating_data/air_flow,get,sensor,Air Flow,mdi:fan,measurement,none,m³/h
 #operating_data/sun_temp=999.9
-operating_data/house_valve_state,get,sensor,Floor valve,mdi:heating-coil,measurement,power_factor,%
-#operating_data/chill_out=9.0
+#operating_data/house_valve_state,get,sensor,Floor valve,mdi:heating-coil,measurement,power_factor,%
+operating_data/chill_out,get,sensor,Chill Factor,mdi:weather-windy,measurement,temperature,°C
 #operating_data/sun_pumpspeed=0
 #operating_data/sun_power_kw=0.0
 operating_data/cloud_level,get,sensor,Outside clouds,mdi:cloud,measurement,power_factor,%
-operating_data/forward_temp,get,sensor,Floor flowing,mdi:heating-coil,measurement,temperature,°C
+#operating_data/forward_temp,get,sensor,Floor flowing,mdi:heating-coil,measurement,temperature,°C
 #operating_data/back_pressure=17
 #operating_data/t1_temp=0
 #operating_data/air_quality=198
 #operating_data/feed_low=385
 #operating_data/feed_medium=104
 #operating_data/feed_high=169
-operating_data/content,get,sensor,Burned total,mdi:weight-kilogram,measurement,none,kg
-operating_data/external_temp,get,sensor,Outside temperature,none,measurement,temperature,°C
-settings/boiler/temp,set,climate,Core temp regulation,mdi:thermometer-lines,sensor/core/state,75,none
-settings/hot_water/temp,set,climate,Water regulation,mdi:water-thermometer,sensor/boiler_temperature/state,60,none
+operating_data/content,get,sensor,Hopper Remaining,mdi:weight-kilogram,measurement,none,kg
+operating_data/external_temp,get,sensor,Boiler Room,mdi:home-thermometer,measurement,temperature,°C
 #operating_data/state=5
 #operating_data/substate=0
-#operating_data/boiler_pump_state=1
+operating_data/boiler_pump_state,get,sensor,Boiler Pump,mdi:water-pump,none,power,none
 #operating_data/dhw_valve_state=0
-#operating_data/house_pump_state=1
+operating_data/house_pump_state,get,sensor,Circulation Pump,mdi:water-pump,none,power,none
 #operating_data/sun_pump_state=0
 #operating_data/sun_surplus_state=0
 #operating_data/ashbox_minutes=1348.1
 #operating_data/ashbox_contact=0.1
 #operating_data/internet_uptime=100
-#operating_data/off_on_alarm=1
+operating_data/off_on_alarm,get,sensor,Alarm,mdi:check-circle,none,problem,none
 #operating_data/contact1=0
 #operating_data/contact2=0
 #operating_data/dl_progress=0
@@ -64,3 +63,47 @@ settings/hot_water/temp,set,climate,Water regulation,mdi:water-thermometer,senso
 #operating_data/corr_medium=0
 #operating_data/corr_high=14
 #operating_data/ash_clean=23.8
+## --------------------------------settings/boiler-------------------------------- ##
+settings/boiler/temp,set,climate,Boiler temp regulation,mdi:thermometer-lines,sensor/core/state,75,none
+#settings/boiler/diff_over=10 
+#settings/boiler/diff_under=5 
+#settings/boiler/reduction=0 
+#settings/boiler/ext_stop_temp=0.0 
+#settings/boiler/ext_stop_diff=1.0 
+#settings/boiler/ext_switch=0 
+#settings/boiler/ext_off_delay=5 
+#settings/boiler/ext_on_delay=5 
+#settings/boiler/timer=0 
+#settings/boiler/monday=000000000000 
+#settings/boiler/tuesday=000000000000 
+#settings/boiler/wednesday=000000000000 
+#settings/boiler/thursday=000000000000 
+#settings/boiler/friday=000000000000 
+#settings/boiler/saturday=000000000000 
+#settings/boiler/sunday=000000000000 
+#settings/boiler/min_return=0 
+#settings/boiler/boost_period=0 
+#settings/boiler/boost_temp=0.0 
+#settings/boiler/vacuum=10 
+#settings/boiler/vacuum_gain=1.0 
+#settings/boiler/ext_input=5 
+#settings/boiler/minimum_vacuum=-1 
+#settings/boiler/average_vacuum=10#
+## --------------------------------settings/hot_water-------------------------------- ##
+#settings/hot_water/temp,set,climate,Water regulation,mdi:water-thermometer,sensor/boiler_temperature/state,60,none
+#settings/hot_water/diff_under=10 
+#settings/hot_water/dhw_remain=10 
+#settings/hot_water/output=0
+#settings/hot_water/dwh_weather=0 
+#settings/hot_water/dwh_weather2=0 
+#settings/hot_water/timer=1
+#settings/hot_water/monday=110000000000 
+#settings/hot_water/tuesday=110000000000 
+#settings/hot_water/wednesday=110000000000 
+#settings/hot_water/thursday=110000000000 
+#settings/hot_water/friday=110000000000 
+#settings/hot_water/saturday=111000000000 
+#settings/hot_water/sunday=111000000000 
+#settings/hot_water/input=4
+## --------------------------------consumption_data-------------------------------- ##
+consumption_data/counter,get,sensor,Total Pellets Consumed,mdi:weight-kilogram,measurement,none,kg
