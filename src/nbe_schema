@@ -44,8 +44,8 @@ operating_data/cloud_level,get,sensor,Outside clouds,mdi:cloud,measurement,power
 #operating_data/feed_high=169
 operating_data/content,get,sensor,Hopper Remaining,mdi:weight-kilogram,measurement,none,kg
 operating_data/external_temp,get,sensor,Boiler Room,mdi:home-thermometer,measurement,temperature,°C
-#operating_data/state=5
-#operating_data/substate=0
+operating_data/state,get,sensor,State,mdi:play-circle,none,none,none
+operating_data/substate,get,sensor,Sub-State,mdi:cog,none,none,none
 operating_data/boiler_pump_state,get,sensor,Boiler Pump,mdi:water-pump,none,power,none
 #operating_data/dhw_valve_state=0
 operating_data/house_pump_state,get,sensor,Circulation Pump,mdi:water-pump,none,power,none
@@ -54,7 +54,7 @@ operating_data/house_pump_state,get,sensor,Circulation Pump,mdi:water-pump,none,
 #operating_data/ashbox_minutes=1348.1
 #operating_data/ashbox_contact=0.1
 #operating_data/internet_uptime=100
-operating_data/off_on_alarm,get,sensor,Alarm,mdi:check-circle,none,problem,none
+operating_data/off_on_alarm,get,sensor,Alarm,mdi:check-circle,none,none,none
 #operating_data/contact1=0
 #operating_data/contact2=0
 #operating_data/dl_progress=0
