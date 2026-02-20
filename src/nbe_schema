@@ -46,9 +46,9 @@ operating_data/content,get,sensor,Hopper Remaining,mdi:weight-kilogram,measureme
 operating_data/external_temp,get,sensor,Boiler Room,mdi:home-thermometer,measurement,temperature,°C
 operating_data/state,get,sensor,State,mdi:play-circle,none,none,none
 operating_data/substate,get,sensor,Sub-State,mdi:cog,none,none,none
-operating_data/boiler_pump_state,get,sensor,Boiler Pump,mdi:water-pump,none,power,none
+operating_data/boiler_pump_state,get,binary_sensor,Boiler Pump,mdi:water-pump,none,power,none
 #operating_data/dhw_valve_state=0
-operating_data/house_pump_state,get,sensor,Circulation Pump,mdi:water-pump,none,power,none
+operating_data/house_pump_state,get,binary_sensor,Circulation Pump,mdi:water-pump,none,power,none
 #operating_data/sun_pump_state=0
 #operating_data/sun_surplus_state=0
 #operating_data/ashbox_minutes=1348.1
