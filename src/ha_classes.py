@@ -99,3 +99,23 @@ class Sensor:
     def toJSON(self):
         return json.dumps(self, default=lambda o: o.__dict__,
             sort_keys=True, indent=8)
+
+class BinarySensor:
+    def __init__(self, icon, device_class, name, device):
+        if icon != "none":
+            self.icon = icon
+        if device_class != "none":
+            self.device_class = device_class
+
+        self.name = name
+        self.state_topic = device.getUid() + "/binary_sensor/" + strip_invalid(name) + "/state"
+        self.availability_topic = device.getUid() + "/bridge/state"
+        self.unique_id = strip_invalid(self.name) + "_" + device.getId()
+        self.device = device
+
+    def getUid(self):
+        return strip_invalid(self.name)
+
+    def toJSON(self):
+        return json.dumps(self, default=lambda o: o.__dict__,
+            sort_keys=True, indent=8)

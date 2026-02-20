@@ -82,6 +82,16 @@ def populate_resources(client):
            if row[1] == "get" and row[2] == "sensor":
               item = ha_classes.Sensor(row[4],row[6],row[7],row[5],row[3],device)
               DataEntries.append(ha_classes.Resource(item,row[2],row[0]))
+           # Column order for binary_sensor
+           # RESOURCE,METHOD,TYPE,NAME,ICON,STATE-CLASS,DEVICE-CLASS,UNIT-OF-MEASUREMENT
+           if row[1] == "get" and row[2] == "binary_sensor":
+               item = ha_classes.BinarySensor(
+                   icon=row[4],
+                   device_class=row[6],
+                   name=row[3],
+                   device=device
+               )
+               DataEntries.append(ha_classes.Resource(item, row[2], row[0]))
            # Column order for climate control
            # RESOURCE,METHOD,TYPE,NAME,ICON,CURRENT-TEMP-TOPIC,MAX-TEMP
            if row[1] == "set" and row[2] == "climate":
@@ -159,6 +169,15 @@ def refresh_statuses(client):
            if key != "none" and val != "none":
               logger.debug("sensor: "+row.component.state_topic+" with value: "+str(val))
               client.publish(row.component.state_topic,val,0,True)
+        if row.type == "binary_sensor":
+            key, val = search_query(raw_data, row.resource)
+            if key != "none" and val != "none":
+                # Home Assistant expects "ON" / "OFF" or "on" / "off"
+                # depending on your device_class, but lowercase is fine.
+                state = "on" if str(val) == "1" else "off"
+                logger.debug("binary_sensor: " + row.component.state_topic + " with value: " + state)
+                client.publish(row.component.state_topic, state, 0, True)
+
 
 # mqtt callback when connection success
 def on_connect(client, userdata, flags, rc):
