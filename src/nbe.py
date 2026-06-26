@@ -174,7 +174,7 @@ def refresh_statuses(client):
             if key != "none" and val != "none":
                 # Home Assistant expects "ON" / "OFF" or "on" / "off"
                 # depending on your device_class, but lowercase is fine.
-                state = "on" if str(val) == "1" else "off"
+                state = "ON" if str(val) == "1" else "OFF"
                 logger.debug("binary_sensor: " + row.component.state_topic + " with value: " + state)
                 client.publish(row.component.state_topic, state, 0, True)
 
