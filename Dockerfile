@@ -11,5 +11,6 @@ RUN apk add --no-cache \
 
 COPY /docker/docker_init /docker_init
 COPY /src /app
+COPY /config.env-example /config.env-example
 
 ENTRYPOINT ["/docker_init"]

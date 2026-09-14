@@ -3,6 +3,20 @@
 
 echo "Configuring..."
 
+: "${NBE_SERIAL:?NBE_SERIAL is required}"
+: "${NBE_IP:?NBE_IP is required}"
+: "${NBE_PORT:?NBE_PORT is required}"
+: "${NBE_PASS:?NBE_PASS is required}"
+: "${MQTT_IP:?MQTT_IP is required}"
+: "${MQTT_PORT:?MQTT_PORT is required}"
+: "${MQTT_USER:?MQTT_USER is required}"
+: "${MQTT_PASS:?MQTT_PASS is required}"
+: "${MQTT_CLIENT_NAME:?MQTT_CLIENT_NAME is required}"
+: "${LOG_LEVEL:?LOG_LEVEL is required}"
+: "${REFRESH_RATE:?REFRESH_RATE is required}"
+: "${HA_PREFIX:?HA_PREFIX is required}"
+: "${HA_DEVICE_NAME:?HA_DEVICE_NAME is required}"
+
 echo "{" > /app/config.json
 echo "\"nbe_serial\": \"${NBE_SERIAL}\"," >> /app/config.json
 echo "\"nbe_ip\": \"${NBE_IP}\"," >> /app/config.json
@@ -19,8 +33,7 @@ echo "\"ha_prefix\": \"${HA_PREFIX}\"," >> /app/config.json
 echo "\"ha_device_name\": \"${HA_DEVICE_NAME}\"" >> /app/config.json
 echo "}" >> /app/config.json
 
-echo "Config done."
-cat /app/config.json
+echo "Config done for serial ${NBE_SERIAL} at ${NBE_IP}:${NBE_PORT}."
 
 echo "Starting..."
 cd /app

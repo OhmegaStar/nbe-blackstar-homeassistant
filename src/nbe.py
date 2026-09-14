@@ -59,6 +59,7 @@ console_handler.setFormatter(formatter)
 
 # Attach handler to logger
 logger.addHandler(console_handler)
+logger.debug("Effective configuration: %s", settings.safe_config())
 
 #make device name and ident unique by adding the serialnumber of the device from settings, and using ha_device_name from settings as name if present
 device = ha_classes.Device(
@@ -110,25 +111,26 @@ def populate_resources(client):
         client.publish(row.getHaTopic(),row.component.toJSON(),0,True)
 
 def nbe_query():
-    logger.info("Making query to the pellet burner...")
+    target = f"{settings.config['nbe_ip']}:{settings.config['nbe_port']}"
+    logger.info("Making query to the pellet burner at %s", target)
     items = {}
     if lock == 1:
-       logger.warning("Query collision, lock already set, skipping...")
-       return items
+        logger.warning("Query collision, lock already set, skipping...")
+        return items
     try:
-       with Proxy(settings.config["nbe_pass"], settings.config["nbe_port"], settings.config["nbe_ip"], settings.config["nbe_serial"]) as proxy:
-            for query in [ "operating_data", "settings/boiler", "consumption_data/counter" ]:
-               response = proxy.get(query)
-               logger.debug("Query: " + query)
-               logger.debug("Response:\n\n" + str(response))
-               for item in response:
-                  val = item.split("=",1)
-                  items[val[0]] = val[1]
+        with Proxy(settings.config["nbe_pass"], settings.config["nbe_port"], settings.config["nbe_ip"], settings.config["nbe_serial"]) as proxy:
+            for query in ["operating_data", "settings/boiler", "consumption_data/counter"]:
+                logger.debug("Sending NBE query: %s", query)
+                response = proxy.get(query)
+                logger.debug("NBE response for %s: %s", query, response)
+                if response is None:
+                    logger.warning("No response received for NBE query: %s", query)
+                    continue
+                for item in response:
+                    val = item.split("=", 1)
+                    items[val[0]] = val[1]
     except Exception as e:
-      logger.error("Unable to query NBE:")
-      logger.error(f"Error type: {type(e).__name__}")
-      logger.error(f"Error message: {e}")
-      traceback.print_exc()
+        logger.exception("Unable to query NBE (%s): %s", type(e).__name__, e)
     return items
 
 def nbe_update(command,value):
@@ -140,10 +142,7 @@ def nbe_update(command,value):
            if str(res) == "('OK',)":
               return True
     except Exception as e:
-      logger.error("Unable to send update to NBE Controller:")
-      logger.error(f"Error type: {type(e).__name__}")
-      logger.error(f"Error message: {e}")
-      traceback.print_exc()
+        logger.exception("Unable to send update to NBE Controller (%s): %s", type(e).__name__, e)
     lock = 0
     return False
 
@@ -180,8 +179,8 @@ def refresh_statuses(client):
 
 
 # mqtt callback when connection success
-def on_connect(client, userdata, flags, rc):
-    if rc==0:
+def on_connect(client, userdata, flags, reason_code, properties=None):
+    if reason_code == 0:
         client.connected_flag=True
         logger.info("connected OK")
         # set availability when connected
@@ -191,7 +190,7 @@ def on_connect(client, userdata, flags, rc):
         # populate device resources
         populate_resources(client)
     else:
-        logger.error("Bad connection Returned code=" + str(rc))
+        logger.error("Bad connection Returned code=" + str(reason_code))
         client.bad_connection_flag=True
 
 
@@ -217,7 +216,10 @@ def start():
     logger.info("Started up!")
     paho.Client.connected_flag=False
     paho.Client.bad_connection_flag=False
-    client= paho.Client()
+    client_options = {}
+    if hasattr(paho, "CallbackAPIVersion"):
+        client_options["callback_api_version"] = paho.CallbackAPIVersion.VERSION2
+    client = paho.Client(**client_options)
     client.username_pw_set(settings.config["mqtt_user"],settings.config["mqtt_pass"])
     client.on_connect=on_connect   #bind connect call back function
     client.on_message=on_message    #attach function to callback for subscriptions on the topics

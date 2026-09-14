@@ -1,5 +1,6 @@
 .git
 config.json
+config.env
 src/config.json
 src/__pycache__
 __pycache__

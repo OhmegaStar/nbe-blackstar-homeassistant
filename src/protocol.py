@@ -18,6 +18,7 @@
 """
 from __future__ import print_function
 import socket
+import logging
 from random import randrange
 import time
 from Crypto.PublicKey import RSA
@@ -27,6 +28,8 @@ from os import urandom
 from random import SystemRandom, randrange
 import select
 #import xtea
+
+logger = logging.getLogger("pellet_burner.protocol")
 
 class Proxy:
     root = ('settings', 'operating_data', 'advanced_data', 'consumption_data', 'event_log','sw_versions','info')
@@ -49,6 +52,7 @@ class Proxy:
             s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         s.settimeout(0.5)
         self.s = s
+        logger.debug("UDP socket bound for NBE request traffic; target=%s:%s", addr, port)
         request = Request_frame()
         self.response = Response_frame(request)
 
@@ -57,9 +61,15 @@ class Proxy:
         if serialnumber:
             request.controllerid = serialnumber
         request.sequencenumber = randrange(0,100)
+        logger.debug("Sending discovery request to %s:%s for serial=%s", addr, port, serialnumber)
         self.s.sendto(request.encode() , (addr, port))
         self.s.settimeout(5.0)
-        data, server = self.s.recvfrom(4096)
+        try:
+            data, server = self.s.recvfrom(4096)
+        except socket.timeout:
+            logger.warning("Timed out waiting 5 seconds for discovery response from %s:%s", addr, port)
+            raise
+        logger.debug("Received discovery response from %s (%d bytes)", server, len(data))
         s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 0)
         self.addr = server
 
@@ -73,9 +83,15 @@ class Proxy:
         request.payload = 'misc.rsa_key'
         request.function = 1
         request.sequencenumber += 1
+        logger.debug("Requesting RSA key from %s", self.addr)
         self.s.sendto(request.encode() , self.addr)
         self.s.settimeout(5.0)
-        data, server = self.s.recvfrom(4096)
+        try:
+            data, server = self.s.recvfrom(4096)
+        except socket.timeout:
+            logger.warning("Timed out waiting 5 seconds for RSA key response from %s", self.addr)
+            raise
+        logger.debug("Received RSA key response from %s (%d bytes)", server, len(data))
         self.response.decode(data)
         try:
             key = self.response.payload.split('rsa_key=')[1]
@@ -168,20 +184,22 @@ class Proxy:
         return cls(password, port, addr='<broadcast>', serialnumber=serialnumber)
 
     def make_request(self, function, payload, encrypt=False, key=None):
-        #print(' '.join([hex(ord(ch)) for ch in c.framedata]))
         self.request.sequencenumber += 1
         self.request.payload = payload
         self.request.function = function
         self.request.encrypted = encrypt
         self.request.pincode = self.password
+        logger.debug("Sending NBE request function=%s payload=%s target=%s", function, payload, self.addr)
         self.s.sendto(self.request.encode(), self.addr)
-        # needs to implement poll wait
         self.s.settimeout(5.0)
         ready = select.select([self.s], [], [], 5)
         if ready[0]:
-          data, server = self.s.recvfrom(4096)
-          self.response.decode(data)
-          return self.response
+            data, server = self.s.recvfrom(4096)
+            logger.debug("Received NBE response from %s (%d bytes)", server, len(data))
+            self.response.decode(data)
+            return self.response
+        logger.warning("Timed out waiting 5 seconds for NBE response to payload=%s", payload)
+        return None
 
     def __enter__(self):
         return self

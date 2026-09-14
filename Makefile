@@ -8,10 +8,13 @@ endif
 
 all: build
 
+test:
+	uv run --group test pytest
+
 build:
-	docker build -t nbe:latest -f docker/Dockerfile --no-cache=true .
+	docker build -t nbe:latest -f Dockerfile --no-cache=true .
 build_aarch64:
-	docker build -t nbe:aarch64 -f docker/Dockerfile --no-cache=true .
+	docker buildx build --platform linux/arm64 -t nbe:aarch64 -f Dockerfile --load --no-cache=true .
 upload_aarch64:
 	docker tag nbe:aarch64 ohmegastar/nbe:aarch64
 	docker push ohmegastar/nbe:aarch64
@@ -25,4 +28,4 @@ down:
 up_aarch64:
 	COMPOSE_PROJECT_NAME=nbe COMPOSE_IGNORE_ORPHANS=True $(DOCKER_COMPOSE_COMMAND) -f docker-compose_aarch64.yml up -d
 down_aarch64:
-	COMPOSE_PROJECT_NAME=nbe COMPOSE_IGNORE_ORPHANS=True $(DOCKER_COMPOSE_COMMAND) -f docker-compose_aarch64.ym down
+	COMPOSE_PROJECT_NAME=nbe COMPOSE_IGNORE_ORPHANS=True $(DOCKER_COMPOSE_COMMAND) -f docker-compose_aarch64.yml down

@@ -36,11 +36,98 @@ It will bring docker up, docker system must be already running on the host syste
 
 `docker-compose.yml` is for **x86_64** architecture and `docker-compose_aarch64.yml` is for **ARM x64** architecture.
 
+# Local Docker development
+
+Install Docker Desktop with Linux containers enabled, then create a local environment file:
+
+```powershell
+Copy-Item config.env-example config.env
+# Edit config.env with the burner and MQTT settings
+```
+
+Build and run the local image without creating a release:
+
+```powershell
+.\tools\local-docker.ps1
+```
+
+Build without running, or stop the local container:
+
+```powershell
+.\tools\local-docker.ps1 -BuildOnly
+.\tools\local-docker.ps1 -Stop
+```
+
+The equivalent Make targets are `make build` and `make build_aarch64`. The release workflow builds and pushes the published multi-architecture images; local Docker is not required to create a Git release. The image contains no user configuration: it requires the runtime environment variables shown in `config.env-example`. Credentials are used only to generate the container's temporary `/app/config.json` at startup and are not printed.
+
+The release image includes `/config.env-example` as a safe configuration reference. It does not include the real `config.env` or `config.json`. Test the release image locally before publishing:
+
+```powershell
+.\tools\test-docker-image.ps1
+```
+
+This builds `nbe:release-test`, verifies the example file is present, and starts the container with local `config.env` long enough to confirm application startup. Use `-NoBuild` to test an already-built image.
+
+# Local Python tests
+
+Install [uv](https://docs.astral.sh/uv/), then run the Python harness before building the image:
+
+```powershell
+.\tools\test-python.ps1
+```
+
+This creates an isolated uv environment, installs the test dependencies, and runs tests that exercise frame encoding and the UDP timeout path without requiring a connected pellet burner. The timeout test is expected to raise the same `socket.timeout` seen when the configured burner does not answer.
+
+The equivalent Make target is:
+
+```powershell
+make test
+```
+
+Run the application directly with Python, using the root configuration file:
+
+```powershell
+.\tools\run-python.ps1
+```
+
+This connects directly to the configured burner and MQTT broker, so it requires reachable devices. To use another configuration file:
+
+```powershell
+.\tools\run-python.ps1 -ConfigFile .\config.local.json
+```
+
+With `"log_level": "DEBUG"`, startup output includes the effective configuration with passwords redacted, followed by the burner target, discovery and RSA-key exchange, each query, response, and timeout. A timeout identifies the exact UDP stage that did not receive a response.
+
 # Releasing
 
-Releases are created locally with PowerShell. From a clean working tree, run `./tools/release.ps1 -Version 0.2.0` to create the changelog entry, release commit, and tag. Review the result, then run `./tools/release.ps1 -Version 0.2.0 -Push` to push the branch and tag. The tag starts GitHub Actions, which creates the GitHub release and publishes `ohmegastar/nbe` tags for the version and `latest`. It also refreshes the legacy `aarch64` image tag.
+Before releasing, run both local checks from a clean configuration:
+
+```powershell
+.\tools\test-python.ps1
+.\tools\test-docker-image.ps1
+```
+
+Create and push a release in one command:
+
+```powershell
+.\tools\release.ps1 -Version 0.2.0 -Push
+```
+
+This creates the changelog entry, release commit, and `v0.2.0` tag, then pushes the branch and tag. The tag starts GitHub Actions, which creates the GitHub release and publishes `ohmegastar/nbe` tags for the version and `latest`. It also refreshes the legacy `aarch64` image tag.
+
+For a review before pushing, create the release locally without `-Push`, inspect the changelog and commit, then push manually:
+
+```powershell
+.\tools\release.ps1 -Version 0.2.0
+git push origin HEAD:master
+git push origin v0.2.0
+```
 
 The repository needs the `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` Actions secrets before running a release.
+
+# VS Code requirements
+
+No project-specific VS Code modules are required. Recommended extensions are Docker (`ms-azuretools.vscode-docker`), PowerShell (`ms-vscode.powershell`), and YAML (`redhat.vscode-yaml`) for workflow validation. GitHub Actions support is optional; the release itself runs on GitHub-hosted runners.
 
 * **NBE Serial** can be found on system menu System > User account > Serial number on the controller
 * **NBE Password** can be found on the pallet burner phisically just open the door and look at the top, it should be written over there.
