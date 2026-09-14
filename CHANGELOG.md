@@ -39,6 +39,19 @@ All notable changes to this project are documented in this file.
  .github/workflows/release.yml | 12 +++++-------
  1 file changed, 5 insertions(+), 7 deletions(-)
 ```
+## [v0.1.5] - 2026-09-14
+
+### Changed
+
+- Fix release workflow YAML indentation (117d316)
+
+### Files changed
+
+```text
+ .github/workflows/release.yml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+```
 ## [Unreleased]
+
 
 
