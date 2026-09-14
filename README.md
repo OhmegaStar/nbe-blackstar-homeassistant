@@ -36,6 +36,12 @@ It will bring docker up, docker system must be already running on the host syste
 
 `docker-compose.yml` is for **x86_64** architecture and `docker-compose_aarch64.yml` is for **ARM x64** architecture.
 
+# Releasing
+
+Releases are created from the **Actions > Release > Run workflow** menu. Enter a semantic version such as `0.2.0` and optionally add maintainer release notes. The PowerShell workflow generates `CHANGELOG.md` from commits since the previous tag, creates the GitHub release, and publishes `ohmegastar/nbe` tags for the version and `latest`. It also refreshes the legacy `aarch64` image tag.
+
+The repository needs the `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` Actions secrets before running a release.
+
 * **NBE Serial** can be found on system menu System > User account > Serial number on the controller
 * **NBE Password** can be found on the pallet burner phisically just open the door and look at the top, it should be written over there.
 
