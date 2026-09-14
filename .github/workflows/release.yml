@@ -67,4 +67,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ github.ref_name }}
-        run: gh release create "$VERSION" --verify-tag "$VERSION" --title "Release $VERSION" --notes-file release-notes.md
+          TARGET: ${{ github.sha }}
+        run: gh release create "$VERSION" --target "$TARGET" --title "Release $VERSION" --notes-file release-notes.md
