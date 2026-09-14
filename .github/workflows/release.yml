@@ -1,16 +1,9 @@
 name: Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: "Semantic version to release, with or without the v prefix"
-        required: true
-        type: string
-      release_notes:
-        description: "Optional release notes shown above the generated commit list"
-        required: false
-        type: string
+  push:
+    tags:
+      - "v*"
 
 permissions:
   contents: write
@@ -28,33 +21,22 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Prepare version and release notes
-        id: release
+      - name: Extract release notes from changelog
         shell: pwsh
-        env:
-          REQUESTED_VERSION: ${{ inputs.version }}
-          MAINTAINER_NOTES: ${{ inputs.release_notes }}
         run: |
-          $version = $env:REQUESTED_VERSION.TrimStart('v')
-          $notesPath = Join-Path $pwd "release-notes-input.md"
-          [System.IO.File]::WriteAllText($notesPath, $env:MAINTAINER_NOTES, [System.Text.UTF8Encoding]::new($false))
-          ./scripts/release.ps1 -Version "v$version" -NotesFile $notesPath -Output release-notes.md
-          "version=v$version" >> $env:GITHUB_OUTPUT
-
-      - name: Commit changelog and create tag
-        env:
-          VERSION: ${{ steps.release.outputs.version }}
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add CHANGELOG.md
-          git commit -m "chore: release $VERSION"
-          git tag -a "$VERSION" -m "Release $VERSION"
-          git push origin HEAD:master "$VERSION"
+          $version = $env:GITHUB_REF_NAME
+          $changelog = Get-Content CHANGELOG.md -Raw
+          $escapedVersion = [regex]::Escape($version)
+          $match = [regex]::Match($changelog, "(?ms)^## \[$escapedVersion\].*?(?=^## |\z)")
+          if (-not $match.Success) {
+            throw "No changelog entry found for $version"
+          }
+          [System.IO.File]::WriteAllText('release-notes.md', $match.Value.Trim(), [System.Text.UTF8Encoding]::new($false))
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
+        env:
+          VERSION: ${{ github.ref_name }}
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -70,7 +52,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ${{ env.IMAGE_NAME }}:${{ steps.release.outputs.version }}
+            ${{ env.IMAGE_NAME }}:${{ github.ref_name }}
             ${{ env.IMAGE_NAME }}:latest
 
       - name: Publish legacy ARM image tag
@@ -85,5 +67,5 @@ jobs:
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ steps.release.outputs.version }}
-        run: gh release create "$VERSION" --title "Release $VERSION" --notes-file release-notes.md
+          VERSION: ${{ github.ref_name }}
+        run: gh release create "$VERSION" --verify-tag "$VERSION" --title "Release $VERSION" --notes-file release-notes.md

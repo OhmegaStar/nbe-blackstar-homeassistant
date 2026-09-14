@@ -38,7 +38,7 @@ It will bring docker up, docker system must be already running on the host syste
 
 # Releasing
 
-Releases are created from the **Actions > Release > Run workflow** menu. Enter a semantic version such as `0.2.0` and optionally add maintainer release notes. The PowerShell workflow generates `CHANGELOG.md` from commits since the previous tag, creates the GitHub release, and publishes `ohmegastar/nbe` tags for the version and `latest`. It also refreshes the legacy `aarch64` image tag.
+Releases are created locally with PowerShell. From a clean working tree, run `./tools/release.ps1 -Version 0.2.0` to create the changelog entry, release commit, and tag. Review the result, then run `./tools/release.ps1 -Version 0.2.0 -Push` to push the branch and tag. The tag starts GitHub Actions, which creates the GitHub release and publishes `ohmegastar/nbe` tags for the version and `latest`. It also refreshes the legacy `aarch64` image tag.
 
 The repository needs the `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` Actions secrets before running a release.
 
