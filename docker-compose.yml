@@ -2,7 +2,7 @@ version: '3.0'
 services:
     nbe:
         container_name: nbe
-        image: ohmegastar/nbe:latest
+        image: ghcr.io/ohmegastar/nbe:latest
         hostname: nbe
         restart: unless-stopped
         environment:

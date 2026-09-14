@@ -58,7 +58,7 @@ Build without running, or stop the local container:
 .\tools\local-docker.ps1 -Stop
 ```
 
-The equivalent Make targets are `make build` and `make build_aarch64`. The release workflow builds and pushes the published multi-architecture images; local Docker is not required to create a Git release. The image contains no user configuration: it requires the runtime environment variables shown in `config.env-example`. Credentials are used only to generate the container's temporary `/app/config.json` at startup and are not printed.
+The equivalent Make targets are `make build` and `make build_aarch64`. The release workflow builds and pushes the published multi-architecture images to `ghcr.io/ohmegastar/nbe`; local Docker is not required to create a Git release. The image contains no user configuration: it requires the runtime environment variables shown in `config.env-example`. Credentials are used only to generate the container's temporary `/app/config.json` at startup and are not printed.
 
 The release image includes `/config.env-example` as a safe configuration reference. It does not include the real `config.env` or `config.json`. Test the release image locally before publishing:
 
@@ -113,7 +113,7 @@ Create and push a release in one command:
 .\tools\release.ps1 -Version 0.2.0 -Push
 ```
 
-This creates the changelog entry, release commit, and `v0.2.0` tag, then pushes the branch and tag. The tag starts GitHub Actions, which creates the GitHub release and publishes `ohmegastar/nbe` tags for the version and `latest`. It also refreshes the legacy `aarch64` image tag.
+This creates the changelog entry, release commit, and `v0.2.0` tag, then pushes the branch and tag. The tag starts GitHub Actions, which creates the GitHub release and publishes `ghcr.io/ohmegastar/nbe` tags for the version and `latest`. It also refreshes the legacy `aarch64` image tag.
 
 For a review before pushing, create the release locally without `-Push`, inspect the changelog and commit, then push manually:
 
@@ -123,7 +123,7 @@ git push origin HEAD:master
 git push origin v0.2.0
 ```
 
-The repository needs the `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` Actions secrets before running a release.
+The workflow authenticates to GHCR with the built-in `GITHUB_TOKEN`; no Docker Hub credentials are required. Make the `nbe` package public in the repository's **Packages** settings if users should pull it without logging in. For private images, users must authenticate to `ghcr.io` with a GitHub token that has package read access.
 
 # VS Code requirements
 
