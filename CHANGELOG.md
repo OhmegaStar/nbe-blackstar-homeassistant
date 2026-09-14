@@ -96,7 +96,20 @@ All notable changes to this project are documented in this file.
  Dockerfile | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 ```
+## [v0.1.8] - 2026-09-14
+
+### Changed
+
+- Fix GitHub release tag creation (43acb38)
+
+### Files changed
+
+```text
+ .github/workflows/release.yml | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+```
 ## [Unreleased]
+
 
 
 
