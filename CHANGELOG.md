@@ -84,7 +84,20 @@ All notable changes to this project are documented in this file.
  uv.lock                       | 257 ++++++++++++++++++++++++++++++++++++++++++
  21 files changed, 763 insertions(+), 48 deletions(-)
 ```
+## [v0.1.7] - 2026-09-14
+
+### Changed
+
+- Link GHCR image to repository (a25c693)
+
+### Files changed
+
+```text
+ Dockerfile | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+```
 ## [Unreleased]
+
 
 
 
