@@ -51,7 +51,41 @@ All notable changes to this project are documented in this file.
  .github/workflows/release.yml | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 ```
+## [v0.1.6] - 2026-09-14
+
+### Changed
+
+- migrate to ghcr.io/ohmegastar/nbe (4f3f35a)
+- Add local testing and secure Docker release tooling (69c3ab4)
+
+### Files changed
+
+```text
+ .dockerignore                 |   1 +
+ .github/workflows/release.yml |   9 +-
+ .gitignore                    |   4 +
+ Dockerfile                    |   1 +
+ Makefile                      |  18 +--
+ README.md                     |  91 ++++++++++++++-
+ config.env-example            |  13 +++
+ docker-compose.yml            |   2 +-
+ docker-compose_aarch64.yml    |   2 +-
+ docker/docker_init            |  17 ++-
+ pyproject.toml                |  18 +++
+ src/nbe.py                    |  48 ++++----
+ src/protocol.py               |  32 ++++--
+ src/settings.py               |  12 +-
+ tests/test_protocol.py        |  48 ++++++++
+ tests/test_settings.py        |  29 +++++
+ tools/local-docker.ps1        |  69 ++++++++++++
+ tools/run-python.ps1          |  36 ++++++
+ tools/test-docker-image.ps1   |  80 +++++++++++++
+ tools/test-python.ps1         |  24 ++++
+ uv.lock                       | 257 ++++++++++++++++++++++++++++++++++++++++++
+ 21 files changed, 763 insertions(+), 48 deletions(-)
+```
 ## [Unreleased]
+
 
 
 
