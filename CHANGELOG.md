@@ -27,5 +27,18 @@ All notable changes to this project are documented in this file.
  tools/release.ps1             | 68 +++++++++++++++++++++++++++++++++++++++++
  5 files changed, 157 insertions(+), 1 deletion(-)
 ```
+## [v0.1.4] - 2026-09-14
+
+### Changed
+
+- Update release actions for Node 24 (6abef9b)
+
+### Files changed
+
+```text
+ .github/workflows/release.yml | 12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
+```
 ## [Unreleased]
+
 
